@@ -31,10 +31,20 @@ public:
         }
     };
 
+    std::unordered_map<char, int> countFrequency(std::string text);
+
     void printCodes(Node* root, std::string str, std::unordered_map<char, std::string>& huffmap);
-    void buildHuffmanTree(std::string text);
-    std::string compress(std::string text);
-    std::string decompress(std::string coded);
+    void buildHuffmanTree(const std::unordered_map<char, int> &freq);
+
+    void inorder_traversal(Node *root);
+
+    std::string compress(std::unordered_map<char, int> freq, std::string text);
+
+    std::unordered_map<char, int> readFrequencyTableFromFile(std::string filename, std::string& compressedData);
+
+    std::string decompress(std::unordered_map<char, int> freq, std::string coded);
+
+
 
 private:
     std::priority_queue<Node*, std::vector<Node*>, compare> pq;
