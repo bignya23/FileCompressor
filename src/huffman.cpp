@@ -7,11 +7,12 @@
 #include <bitset>
 #include <cstdint>
 #include <fstream>
+#include <map>
 #include <sstream>
 
 
 // After building tree for getting the binary code for each character
-void Huffman::printCodes(Node* root, std::string str, std::unordered_map<char, std::string>& huffmap) {
+void Huffman::printCodes(Node* root, std::string str, std::map<char, std::string>& huffmap) {
     if (root == nullptr) {
         return;
     }
@@ -24,8 +25,8 @@ void Huffman::printCodes(Node* root, std::string str, std::unordered_map<char, s
     printCodes(root->right, str + "1", huffmap);
 }
 // To count the freq of the text
-std::unordered_map<char, int> Huffman::countFrequency(std::string text) {
-    std::unordered_map<char, int> freq;
+std::map<char, int> Huffman::countFrequency(std::string text) {
+    std::map<char, int> freq;
 
     // Storing the frequency of each character in the text in a map
     for (char c : text) {
@@ -36,7 +37,7 @@ std::unordered_map<char, int> Huffman::countFrequency(std::string text) {
 }
 
 // For building the tree based on frequency
-void Huffman::buildHuffmanTree(const std::unordered_map<char, int> &freq) {
+void Huffman::buildHuffmanTree(const std::map<char, int> &freq) {
     // Pushing each character in the priority queue
     for (auto pair : freq) {
         pq.push(new Node(pair.first, pair.second));
@@ -69,11 +70,11 @@ void Huffman::inorder_traversal(Node* root) {
     inorder_traversal(root->right);
 }
 
-std::string Huffman::compress(std::unordered_map<char, int> freq, std::string text) {
+std::string Huffman::compress(std::map<char, int> freq, std::string text) {
 
     buildHuffmanTree(freq);
 
-    // inorder_traversal(pq.top());
+    inorder_traversal(pq.top());
     std::vector<uint8_t> compressed;
     uint8_t buffer = 0;
     int bitsize = 0;
@@ -103,8 +104,8 @@ std::string Huffman::compress(std::unordered_map<char, int> freq, std::string te
 }
 
 
-std::unordered_map<char, int> Huffman::readFrequencyTableFromFile(std::string filename , std::string& compressedData) {
-    std::unordered_map<char, int> freqMap;
+std::map<char, int> Huffman::readFrequencyTableFromFile(std::string filename , std::string& compressedData) {
+    std::map<char, int> freqMap;
     std::ifstream inFile(filename);
     std::string line;
     while (std::getline(inFile, line)) {
@@ -112,19 +113,35 @@ std::unordered_map<char, int> Huffman::readFrequencyTableFromFile(std::string fi
             // Skip to next lines containing frequency data
             while (std::getline(inFile, line) && line != "<data>") {
                 // Parse each line for character and frequency pair
+                if (line.empty()) {
+                   continue;
+                }
+                if (line[1] != ' ') {
+                    int i = 1;
+                    std::string integer{};
+                    while (i < line.size()) {
+                        integer += line[i];
+                        i++;
+                    }
+                    freqMap['\n']= std::stoi(integer);
+                }
                 char ch = line[0];
                 int i = 2;
                 std::string integer{};
                 while (i < line.size()) {
                     integer += line[i];
                     i++;
+
                 }
                 freqMap[ch]= std::stoi(integer);
             }
         }
         if (line == "<data>") {
             // Read the compressed data
-            std::getline(inFile, compressedData);
+            while (std::getline(inFile, line)) {
+                compressedData += line + "\n";
+            }
+
         }
     }
     inFile.close();
@@ -135,12 +152,12 @@ std::unordered_map<char, int> Huffman::readFrequencyTableFromFile(std::string fi
 }
 
 // Decoding to original string
-std::string Huffman::decompress(std::unordered_map<char ,int> freq, std::string compressedData) {
+std::string Huffman::decompress(std::map<char ,int> freq, std::string compressedData) {
     std::string decoded{};
 
     // Rebuilding the tree
     buildHuffmanTree(freq);
-    // inorder_traversal(pq.top());
+    inorder_traversal(pq.top());
     Node* curr = pq.top();
 
     // Reading data bit by bit from the byte and find the char from the tree

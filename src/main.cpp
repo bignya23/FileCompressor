@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <map>
 #include <sstream>
 #include "headers/huffman.hpp"
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
             contents << file.rdbuf();
             text = contents.str();
         }
-        std::unordered_map<char, int> freq = hf.countFrequency(text);
+        std::map<char, int> freq = hf.countFrequency(text);
 
         std::string strCompressed = hf.compress(freq, text);
 
@@ -74,14 +75,14 @@ int main(int argc, char **argv) {
         // //     std::cout << std::bitset<8>(byte);
         // // }
 
-        std::unordered_map<char, int> freq = hf.readFrequencyTableFromFile(argv[1], text);
-        std::unordered_map<char, int> reversed;
+        std::map<char, int> freq = hf.readFrequencyTableFromFile(argv[1], text);
+        // std::unordered_map<char, int> reversed;
 
         // Iterate and reverse
+        // for (const auto& pair : freq) {
+        //     reversed[pair.first] = pair.second;
+        // }
         for (const auto& pair : freq) {
-            reversed[pair.first] = pair.second;
-        }
-        for (const auto& pair : reversed) {
             std::cout << pair.first << " " << pair.second << "\n";
         }
         // std::cout << std::endl;
@@ -92,12 +93,13 @@ int main(int argc, char **argv) {
         //     // Convert each byte to binary using std::bitset
         //     std::cout << std::bitset<8>(byte);
         // }
-        std::string strdecompressed = hf.decompress(reversed,text);
+        std::cout << text;
+        std::string strdecompressed = hf.decompress(freq,text);
 
         std::cout << strdecompressed;
-        // // std::ofstream ofile("decompress124.txt");
-        // ofile << strdecompressed;
-        // ofile.close();
+        std::ofstream ofile("decom.txt");
+        ofile << strdecompressed;
+        ofile.close();
     }
 
 

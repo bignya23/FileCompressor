@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <queue>
@@ -31,22 +32,23 @@ public:
         }
     };
 
-    std::unordered_map<char, int> countFrequency(std::string text);
+    std::map<char, int> countFrequency(std::string text);
 
-    void printCodes(Node* root, std::string str, std::unordered_map<char, std::string>& huffmap);
-    void buildHuffmanTree(const std::unordered_map<char, int> &freq);
+    void printCodes(Node* root, std::string str, std::map<char, std::string>& huffmap);
+    void buildHuffmanTree(const std::map<char, int> &freq);
 
     void inorder_traversal(Node *root);
 
-    std::string compress(std::unordered_map<char, int> freq, std::string text);
 
-    std::unordered_map<char, int> readFrequencyTableFromFile(std::string filename, std::string& compressedData);
+    std::string compress(std::map<char, int> freq, std::string text);
 
-    std::string decompress(std::unordered_map<char, int> freq, std::string coded);
+    std::map<char, int> readFrequencyTableFromFile(std::string filename, std::string& compressedData);
+
+    std::string decompress(std::map<char, int> freq, std::string coded);
 
 
 
 private:
     std::priority_queue<Node*, std::vector<Node*>, compare> pq;
-    std::unordered_map<char, std::string> huffmap;
+    std::map<char, std::string> huffmap;
 };
